@@ -5,6 +5,6 @@
 + opencv-python
 + python-dotenv
 
-### HuggingFace Access Token
+### Hugging Face Access Token
 Create .env file and put token as:
 `TOKEN = 'TOKEN_HERE'`
