@@ -1,6 +1,10 @@
 import numpy as np
 import streamlit as st
+import pandas as pd
+import pickle
 from models import *
+
+prompt_model = pickle.load(open('./models/sf_model.pkl', 'rb'))
 
 st.set_page_config(layout="wide")
 
@@ -33,21 +37,34 @@ if image is not None:
     with col2:
         st.header("Select Task")
 
-        option = st.selectbox('Select the image processing task to be applied', ('Convert to Grayscale', 'Edge Detection', 'Face Detection', 'Image Classification', 'Image Captioning'))
+        prompt = st.text_input('Enter your prompt for the image.')
+        option = prompt_model.predict([prompt])
+        option = option[0]
+
+        # option = st.selectbox('Select the image processing task to be applied', ('Convert to Grayscale', 'Edge Detection', 'Face Detection', 'Image Classification', 'Image Captioning'))
+
+        tasks = {
+            1 : 'Convert to Grayscale',
+            2 : 'Edge Detection',
+            3 : 'Face Detection',
+            4 : 'Image Classification',
+            5 : 'Image Captioning',
+            6 : 'None'
+        }
 
         if st.button("Process"):
             modImg = None
 
-            if option == 'Convert to Grayscale':
+            if tasks[option] == 'Convert to Grayscale':
                 modImg = convToGray(img)
 
-            if option == 'Edge Detection':
+            if tasks[option] == 'Edge Detection':
                 modImg = detectEdges(img)
             
-            if option == 'Face Detection':
+            if tasks[option] == 'Face Detection':
                 modImg = detectFaces(img)
 
-            if option == 'Image Classification':
+            if tasks[option] == 'Image Classification':
                 output = imageClassify(image)
                 prediction = output
 
@@ -58,9 +75,12 @@ if image is not None:
                     with score:
                         st.subheader(data['score'])
 
-            if option == 'Image Captioning':
+            if tasks[option] == 'Image Captioning':
                 output = imageCaption(image)
                 st.subheader(output[0]['generated_text'])
+
+            if tasks[option] == 'None':
+                st.subheader('We currently, do not have this feature, please try a different prompt.')
             
             if modImg is not None:
                 st.image(modImg, use_column_width=True)
